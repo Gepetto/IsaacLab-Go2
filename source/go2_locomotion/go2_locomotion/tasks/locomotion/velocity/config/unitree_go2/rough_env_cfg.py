@@ -5,20 +5,20 @@ from go2_locomotion.tasks.locomotion.velocity.velocity_env_cfg import Locomotion
 ##
 # Pre-defined configs
 ##
-from isaaclab_assets.robots.anymal import ANYMAL_D_CFG  # isort: skip
+from isaaclab_assets.robots.unitree import UNITREE_GO2_CFG  # isort: skip
 
 
 @configclass
-class AnymalDRoughEnvCfg(LocomotionVelocityRoughEnvCfg):
+class UnitreeGo2RoughEnvCfg(LocomotionVelocityRoughEnvCfg):
     def __post_init__(self):
         # post init of parent
         super().__post_init__()
-        # switch robot to anymal-d
-        self.scene.robot = ANYMAL_D_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
+        # switch robot to unitree go2
+        self.scene.robot = UNITREE_GO2_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
 
 
 @configclass
-class AnymalDRoughEnvCfg_PLAY(AnymalDRoughEnvCfg):
+class UnitreeGo2RoughEnvCfg_PLAY(UnitreeGo2RoughEnvCfg):
     def __post_init__(self):
         # post init of parent
         super().__post_init__()

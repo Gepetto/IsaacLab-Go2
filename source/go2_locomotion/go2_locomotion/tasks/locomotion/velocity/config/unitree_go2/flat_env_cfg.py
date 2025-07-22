@@ -1,10 +1,10 @@
 from isaaclab.utils import configclass
 
-from .rough_env_cfg import AnymalDRoughEnvCfg
+from .rough_env_cfg import UnitreeGo2RoughEnvCfg
 
 
 @configclass
-class AnymalDFlatEnvCfg(AnymalDRoughEnvCfg):
+class UnitreeGo2FlatEnvCfg(UnitreeGo2RoughEnvCfg):
     def __post_init__(self):
         # post init of parent
         super().__post_init__()
@@ -23,7 +23,7 @@ class AnymalDFlatEnvCfg(AnymalDRoughEnvCfg):
         self.curriculum.terrain_levels = None
 
 
-class AnymalDFlatEnvCfg_PLAY(AnymalDFlatEnvCfg):
+class UnitreeGo2FlatEnvCfg_PLAY(UnitreeGo2FlatEnvCfg):
     def __post_init__(self) -> None:
         # post init of parent
         super().__post_init__()

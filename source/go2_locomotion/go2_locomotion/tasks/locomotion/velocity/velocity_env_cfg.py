@@ -171,12 +171,12 @@ class ObservationsCfg:
             },
         )
         actions = ObsTerm(func=mdp.last_action)
-        # height_scan = ObsTerm(
-        #     func=mdp.height_scan,
-        #     params={"sensor_cfg": SceneEntityCfg("height_scanner")},
-        #     noise=Unoise(n_min=-0.1, n_max=0.1),
-        #     clip=(-1.0, 1.0),
-        # )
+        height_scan = ObsTerm(
+            func=mdp.height_scan,
+            params={"sensor_cfg": SceneEntityCfg("height_scanner")},
+            noise=Unoise(n_min=-0.1, n_max=0.1),
+            clip=(-1.0, 1.0),
+        )
 
         def __post_init__(self):
             self.enable_corruption = True
@@ -196,10 +196,10 @@ class EventCfg:
         mode="startup",
         params={
             "asset_cfg": SceneEntityCfg("robot", body_names=".*"),
-            # "static_friction_range": (0.8, 0.8),
-            "static_friction_range": (0.05, 4.5),
-            # "dynamic_friction_range": (0.6, 0.6),
-            "dynamic_friction_range": (0.05, 4.5),
+            "static_friction_range": (0.8, 0.8),
+            # "static_friction_range": (0.05, 4.5),
+            "dynamic_friction_range": (0.6, 0.6),
+            # "dynamic_friction_range": (0.05, 4.5),
             "restitution_range": (0.0, 0.0),
             "num_buckets": 64,
         },

@@ -1,6 +1,6 @@
 from isaaclab.utils import configclass
 
-from go2_locomotion.tasks.locomotion.velocity.default_velocity_env_cfg import LocomotionVelocityRoughEnvCfg
+from go2_locomotion.tasks.locomotion.velocity.config.unitree_go2.default_velocity_env_cfg import LocomotionVelocityRoughEnvCfg
 
 ##
 # Pre-defined configs

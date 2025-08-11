@@ -78,10 +78,11 @@ from isaaclab_tasks.utils import get_checkpoint_path
 from isaaclab_tasks.utils.hydra import hydra_task_config
 
 
-from cat_envs.tasks.utils.cleanrl.ppo import PPO
+# from go2_locomotion.tasks.cleanrl.ppo import PPO
+from go2_locomotion.tasks.utils.clean_rl.ppo import PPO
 
 # Import extensions to set up environment tasks
-import cat_envs.tasks  # noqa: F401
+import go2_locomotion.tasks  # noqa: F401
 
 torch.backends.cuda.matmul.allow_tf32 = True
 torch.backends.cudnn.allow_tf32 = True

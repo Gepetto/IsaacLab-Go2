@@ -58,10 +58,10 @@ from isaaclab.utils.dict import print_dict
 from isaaclab_tasks.utils import get_checkpoint_path, parse_env_cfg
 
 
-from cat_envs.tasks.utils.cleanrl.ppo import Agent
+from go2_locomotion.tasks.utils.cleanrl.ppo import Agent
 
 # Import extensions to set up environment tasks
-import cat_envs.tasks  # noqa: F401
+import go2_locomotion.tasks  # noqa: F401
 
 import torch
 

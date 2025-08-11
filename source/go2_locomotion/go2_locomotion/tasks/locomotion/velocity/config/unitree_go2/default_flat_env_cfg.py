@@ -1,6 +1,6 @@
 from isaaclab.utils import configclass
 
-from .rough_env_cfg import UnitreeGo2RoughEnvCfg
+from .default_rough_env_cfg import UnitreeGo2RoughEnvCfg
 
 
 @configclass

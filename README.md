@@ -27,17 +27,17 @@ This repository serves as a template for building projects or extensions based o
 
 ```bash
 # Option 1: HTTPS
-git clone https://github.com/isaac-sim/IsaacLabExtensionTemplate.git
+git clone https://github.com/Kotochleb/IsaacLab-Go2.git
 
 # Option 2: SSH
-git clone git@github.com:isaac-sim/IsaacLabExtensionTemplate.git
+git clone git@github.com:Kotochleb/IsaacLab-Go2.git
 ```
 
 - Throughout the repository, the name `go2_locomotion` only serves as an example and we provide a script to rename all the references to it automatically:
 
 ```bash
 # Enter the repository
-cd IsaacLabExtensionTemplate
+cd IsaacLab-Go2
 # Rename all occurrences of go2_locomotion (in files/directories) to your_fancy_extension_name
 python scripts/rename_template.py your_fancy_extension_name
 ```

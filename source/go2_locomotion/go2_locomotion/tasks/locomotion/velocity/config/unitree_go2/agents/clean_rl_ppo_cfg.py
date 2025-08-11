@@ -4,6 +4,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 
 from isaaclab.utils import configclass
+# from go2_locomotion.tasks.utils.clean_rl.rl_cfg import CleanRlPpoActorCriticCfg
 from go2_locomotion.tasks.utils.clean_rl.rl_cfg import CleanRlPpoActorCriticCfg
 
 

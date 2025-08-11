@@ -54,6 +54,15 @@ python -m pip install -e source/go2_locomotion
 python scripts/rsl_rl/train.py --task=Template-Isaac-Velocity-Flat-Unitree-Go2-v0
 ```
 
+### CaT-Go2: Supports CleanRL only for now
+
+- Modify the constraints and curriculum in [`cat_velocity_env_cfg.py`](./source/go2_locomotion/go2_locomotion/tasks/locomotion/velocity/config/unitree_go2/cat_velocity_env_cfg.py), then train a policy:
+
+```bash
+python scripts/clean_rl/train.py --task=CaT-Isaac-Velocity-Flat-Go2-v0 --video --headless
+```
+
+
 ### Set up IDE (Optional)
 
 To setup the IDE, please follow these instructions:

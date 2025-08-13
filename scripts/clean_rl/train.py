@@ -18,9 +18,7 @@ import cli_args  # isort: skip
 
 # add argparse arguments
 parser = argparse.ArgumentParser(description="Train an RL agent with CleanRL.")
-parser.add_argument(
-    "--video", action="store_true", default=False, help="Record videos during training."
-)
+parser.add_argument("--video", action="store_true", default=False, help="Record videos during training.")
 parser.add_argument(
     "--video_length",
     type=int,
@@ -33,16 +31,10 @@ parser.add_argument(
     default=2000,
     help="Interval between video recordings (in steps).",
 )
-parser.add_argument(
-    "--num_envs", type=int, default=None, help="Number of environments to simulate."
-)
+parser.add_argument("--num_envs", type=int, default=None, help="Number of environments to simulate.")
 parser.add_argument("--task", type=str, default=None, help="Name of the task.")
-parser.add_argument(
-    "--seed", type=int, default=None, help="Seed used for the environment"
-)
-parser.add_argument(
-    "--num_iterations", type=int, default=None, help="RL Policy training iterations."
-)
+parser.add_argument("--seed", type=int, default=None, help="Seed used for the environment")
+parser.add_argument("--num_iterations", type=int, default=None, help="RL Policy training iterations.")
 # append CleanRL cli arguments
 cli_args.add_clean_rl_args(parser)
 # append AppLauncher cli args
@@ -67,22 +59,18 @@ import os
 import torch
 from datetime import datetime
 
-from isaaclab.envs import (
-    DirectMARLEnvCfg,
-    DirectRLEnvCfg,
-    ManagerBasedRLEnvCfg,
-)
+from isaaclab.envs import DirectMARLEnvCfg, DirectRLEnvCfg, ManagerBasedRLEnvCfg
 from isaaclab.utils.dict import print_dict
 from isaaclab.utils.io import dump_pickle, dump_yaml
-from isaaclab_tasks.utils import get_checkpoint_path
+
+# from isaaclab_tasks.utils import get_checkpoint_path
 from isaaclab_tasks.utils.hydra import hydra_task_config
-
-
-# from go2_locomotion.tasks.cleanrl.ppo import PPO
-from go2_locomotion.tasks.utils.clean_rl.ppo import PPO
 
 # Import extensions to set up environment tasks
 import go2_locomotion.tasks  # noqa: F401
+
+# from go2_locomotion.tasks.cleanrl.ppo import PPO
+from go2_locomotion.tasks.utils.clean_rl.ppo import PPO
 
 torch.backends.cuda.matmul.allow_tf32 = True
 torch.backends.cudnn.allow_tf32 = True
@@ -98,21 +86,15 @@ def main(
     """Train with CleanRL agent."""
     # override configurations with non-hydra CLI arguments
     agent_cfg = cli_args.update_clean_rl_cfg(agent_cfg, args_cli)
-    env_cfg.scene.num_envs = (
-        args_cli.num_envs if args_cli.num_envs is not None else env_cfg.scene.num_envs
-    )
+    env_cfg.scene.num_envs = args_cli.num_envs if args_cli.num_envs is not None else env_cfg.scene.num_envs
     agent_cfg.num_iterations = (
-        args_cli.num_iterations
-        if args_cli.num_iterations is not None
-        else agent_cfg.num_iterations
+        args_cli.num_iterations if args_cli.num_iterations is not None else agent_cfg.num_iterations
     )
 
     # set the environment seed
     # note: certain randomizations occur in the environment initialization so we set the seed here
     env_cfg.seed = agent_cfg.seed
-    env_cfg.sim.device = (
-        args_cli.device if args_cli.device is not None else env_cfg.sim.device
-    )
+    env_cfg.sim.device = args_cli.device if args_cli.device is not None else env_cfg.sim.device
 
     # specify directory for logging experiments
     log_root_path = os.path.join("logs", "clean_rl", agent_cfg.experiment_name)
@@ -128,9 +110,7 @@ def main(
     dump_pickle(os.path.join(log_root_path, log_dir, "params", "agent.pkl"), agent_cfg)
 
     # create isaac environment
-    env = gym.make(
-        args_cli.task, cfg=env_cfg, render_mode="rgb_array" if args_cli.video else None
-    )
+    env = gym.make(args_cli.task, cfg=env_cfg, render_mode="rgb_array" if args_cli.video else None)
     # wrap for video recording
     if args_cli.video:
         video_kwargs = {

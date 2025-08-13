@@ -1,7 +1,8 @@
 import gymnasium as gym
 
-from . import agents, default_flat_env_cfg, default_rough_env_cfg, cat_velocity_env_cfg
 from go2_locomotion.tasks.mdps.cat.cat_env import CaTEnv
+
+from . import agents, cat_velocity_env_cfg, default_flat_env_cfg, default_rough_env_cfg
 
 ##
 # Register Gym environments.
@@ -36,7 +37,7 @@ gym.register(
     kwargs={
         "env_cfg_entry_point": default_flat_env_cfg.UnitreeGo2FlatEnvCfg,
         "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:UnitreeGo2FlatPPORunnerCfg",
-        "clean_rl_cfg_entry_point": f"{agents.__name__}.clean_rl_ppo_cfg:Go2FlatPPORunnerCfg"
+        "clean_rl_cfg_entry_point": f"{agents.__name__}.clean_rl_ppo_cfg:Go2FlatPPORunnerCfg",
     },
 )
 

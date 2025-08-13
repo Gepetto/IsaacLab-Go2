@@ -6,6 +6,7 @@
 import math
 
 import isaaclab.sim as sim_utils
+import isaaclab_tasks.manager_based.locomotion.velocity.mdp as mdp
 from isaaclab.assets import ArticulationCfg, AssetBaseCfg
 from isaaclab.envs import ManagerBasedRLEnvCfg
 from isaaclab.managers import CurriculumTermCfg as CurrTerm
@@ -13,9 +14,6 @@ from isaaclab.managers import EventTermCfg as EventTerm
 from isaaclab.managers import ObservationGroupCfg as ObsGroup
 from isaaclab.managers import ObservationTermCfg as ObsTerm
 from isaaclab.managers import RewardTermCfg as RewTerm
-from go2_locomotion.tasks.mdps.cat.manager_constraint_cfg import (
-    ConstraintTermCfg as ConstraintTerm
-)
 from isaaclab.managers import SceneEntityCfg
 from isaaclab.managers import TerminationTermCfg as DoneTerm
 from isaaclab.scene import InteractiveSceneCfg
@@ -25,14 +23,12 @@ from isaaclab.utils import configclass
 from isaaclab.utils.assets import ISAAC_NUCLEUS_DIR, ISAACLAB_NUCLEUS_DIR
 from isaaclab.utils.noise import AdditiveUniformNoiseCfg as Unoise
 
-import isaaclab_tasks.manager_based.locomotion.velocity.mdp as mdp
+import go2_locomotion.tasks.mdps.cat.commands as commands
 import go2_locomotion.tasks.mdps.cat.constraints as constraints
 import go2_locomotion.tasks.mdps.cat.curriculums as curriculums
-
-import go2_locomotion.tasks.mdps.cat.terminations as terminations
 import go2_locomotion.tasks.mdps.cat.events as events
-import go2_locomotion.tasks.mdps.cat.commands as commands
-
+import go2_locomotion.tasks.mdps.cat.terminations as terminations
+from go2_locomotion.tasks.mdps.cat.manager_constraint_cfg import ConstraintTermCfg as ConstraintTerm
 
 """
 * Go2 Isaac joint names:
@@ -58,8 +54,6 @@ import go2_locomotion.tasks.mdps.cat.commands as commands
 # Pre-defined configs
 ##
 from isaaclab_assets.robots.unitree import UNITREE_GO2_CFG
-
-
 
 ##
 # Scene definition
@@ -89,13 +83,9 @@ class MySceneCfg(InteractiveSceneCfg):
         debug_vis=False,
     )
     # robots
-    robot: ArticulationCfg = UNITREE_GO2_CFG.replace(
-        prim_path="/World/envs/env_.*/Robot"
-    )
+    robot: ArticulationCfg = UNITREE_GO2_CFG.replace(prim_path="/World/envs/env_.*/Robot")
     # sensors
-    contact_forces = ContactSensorCfg(
-        prim_path="{ENV_REGEX_NS}/Robot/.*", history_length=3, track_air_time=True
-    )
+    contact_forces = ContactSensorCfg(prim_path="{ENV_REGEX_NS}/Robot/.*", history_length=3, track_air_time=True)
     # lights
     sky_light = AssetBaseCfg(
         prim_path="/World/skyLight",
@@ -153,32 +143,22 @@ class ObservationsCfg:
         """Observations for policy group."""
 
         # observation terms (order preserved)
-        base_ang_vel = ObsTerm(
-            func=mdp.base_ang_vel, noise=Unoise(n_min=-0.001, n_max=0.001), scale=0.25
-        )
+        base_ang_vel = ObsTerm(func=mdp.base_ang_vel, noise=Unoise(n_min=-0.001, n_max=0.001), scale=0.25)
         velocity_commands = ObsTerm(
             func=mdp.generated_commands,
             params={"command_name": "base_velocity"},
             scale=(2.0, 2.0, 0.25),
         )
-        projected_gravity = ObsTerm(
-            func=mdp.projected_gravity, noise=Unoise(n_min=-0.05, n_max=0.05), scale=0.1
-        )
+        projected_gravity = ObsTerm(func=mdp.projected_gravity, noise=Unoise(n_min=-0.05, n_max=0.05), scale=0.1)
         joint_pos = ObsTerm(
             func=mdp.joint_pos,
-            params={
-                "asset_cfg": SceneEntityCfg("robot", joint_names=[".*"],
-                preserve_order=True
-            )
-            },
+            params={"asset_cfg": SceneEntityCfg("robot", joint_names=[".*"], preserve_order=True)},
             noise=Unoise(n_min=-0.01, n_max=0.01),
             scale=1.0,
         )
         joint_vel = ObsTerm(
             func=mdp.joint_vel,
-            params={
-                "asset_cfg": SceneEntityCfg("robot", joint_names=[".*"], preserve_order=True)
-            },
+            params={"asset_cfg": SceneEntityCfg("robot", joint_names=[".*"], preserve_order=True)},
             noise=Unoise(n_min=-0.2, n_max=0.2),
             scale=0.05,
         )
@@ -268,6 +248,7 @@ class RewardsCfg:
         params={"command_name": "base_velocity", "std": math.sqrt(0.25)},
     )
 
+
 """
 * Go2 Isaac joint names:
 [
@@ -287,54 +268,86 @@ class RewardsCfg:
 ]
 """
 
+
 @configclass
 class ConstraintsCfg:
     # Safety Soft constraints
     joint_torque = ConstraintTerm(
         func=constraints.joint_torque,
         max_p=0.25,
-        params={"limit": 15.0, 
-                "asset_cfg": SceneEntityCfg(
-                    "robot",
-                    joint_names=[
-                        "FL_hip.*", "FL_thigh.*", "FL_calf.*",
-                        "FR_hip.*", "FR_thigh.*", "FR_calf.*",
-                        "RL_hip.*", "RL_thigh.*", "RL_calf.*",
-                        "RR_hip.*", "RR_thigh.*", "RR_calf.*"
-                    ]
-                )},
+        params={
+            "limit": 15.0,
+            "asset_cfg": SceneEntityCfg(
+                "robot",
+                joint_names=[
+                    "FL_hip.*",
+                    "FL_thigh.*",
+                    "FL_calf.*",
+                    "FR_hip.*",
+                    "FR_thigh.*",
+                    "FR_calf.*",
+                    "RL_hip.*",
+                    "RL_thigh.*",
+                    "RL_calf.*",
+                    "RR_hip.*",
+                    "RR_thigh.*",
+                    "RR_calf.*",
+                ],
+            ),
+        },
     )
     joint_velocity = ConstraintTerm(
         func=constraints.joint_velocity,
         max_p=0.25,
-        params={"limit": 25.,
-                "asset_cfg": SceneEntityCfg(
-                    "robot",
-                    joint_names=[
-                        "FL_hip.*", "FL_thigh.*", "FL_calf.*",
-                        "FR_hip.*", "FR_thigh.*", "FR_calf.*",
-                        "RL_hip.*", "RL_thigh.*", "RL_calf.*",
-                        "RR_hip.*", "RR_thigh.*", "RR_calf.*"
-                    ]
-                )},
+        params={
+            "limit": 25.0,
+            "asset_cfg": SceneEntityCfg(
+                "robot",
+                joint_names=[
+                    "FL_hip.*",
+                    "FL_thigh.*",
+                    "FL_calf.*",
+                    "FR_hip.*",
+                    "FR_thigh.*",
+                    "FR_calf.*",
+                    "RL_hip.*",
+                    "RL_thigh.*",
+                    "RL_calf.*",
+                    "RR_hip.*",
+                    "RR_thigh.*",
+                    "RR_calf.*",
+                ],
+            ),
+        },
     )
     joint_acceleration = ConstraintTerm(
         func=constraints.joint_acceleration,
         max_p=0.25,
-        params={"limit": 2000.0, 
-                "asset_cfg": SceneEntityCfg(
-                    "robot",
-                    joint_names=[
-                        "FL_hip.*", "FL_thigh.*", "FL_calf.*",
-                        "FR_hip.*", "FR_thigh.*", "FR_calf.*",
-                        "RL_hip.*", "RL_thigh.*", "RL_calf.*",
-                        "RR_hip.*", "RR_thigh.*", "RR_calf.*"
-                    ])},
+        params={
+            "limit": 2000.0,
+            "asset_cfg": SceneEntityCfg(
+                "robot",
+                joint_names=[
+                    "FL_hip.*",
+                    "FL_thigh.*",
+                    "FL_calf.*",
+                    "FR_hip.*",
+                    "FR_thigh.*",
+                    "FR_calf.*",
+                    "RL_hip.*",
+                    "RL_thigh.*",
+                    "RL_calf.*",
+                    "RR_hip.*",
+                    "RR_thigh.*",
+                    "RR_calf.*",
+                ],
+            ),
+        },
     )
     # action_rate = ConstraintTerm(
     #     func=constraints.action_rate,
     #     max_p=0.25,
-    #     params={"limit": 150.0, 
+    #     params={"limit": 150.0,
     #             "asset_cfg": SceneEntityCfg(
     #                 "robot",
     #                 joint_names=[
@@ -366,10 +379,12 @@ class ConstraintsCfg:
     foot_contact_force = ConstraintTerm(
         func=constraints.foot_contact_force,
         max_p=1.0,
-        params={"limit": 125.0,
-                "asset_cfg": SceneEntityCfg("contact_forces", body_names=[
-                    "FL_foot.*", "FR_foot.*", "RL_foot.*", "RR_foot.*"
-                ])},
+        params={
+            "limit": 125.0,
+            "asset_cfg": SceneEntityCfg(
+                "contact_forces", body_names=["FL_foot.*", "FR_foot.*", "RL_foot.*", "RR_foot.*"]
+            ),
+        },
     )
     # front_hfe_position = ConstraintTerm(
     #     func=constraints.joint_position,
@@ -388,12 +403,19 @@ class ConstraintsCfg:
     hip_position = ConstraintTerm(
         func=constraints.joint_position_when_moving_forward,
         max_p=0.25,
-        params={"limit": 0.1,
-                "velocity_deadzone": 0.1,
-                "asset_cfg": SceneEntityCfg("robot", joint_names=[
-                    "RL_hip.*", "RR_hip.*",
-                    "RL_thigh.*", "RR_thigh.*"                    
-                ])},
+        params={
+            "limit": 0.1,
+            "velocity_deadzone": 0.1,
+            "asset_cfg": SceneEntityCfg(
+                "robot",
+                joint_names=[
+                    "RL_hip.*",
+                    "RR_hip.*",
+                    "FL_hip.*",
+                    "FR_hip.*",
+                ],
+            ),
+        },
     )
     # base_orientation = ConstraintTerm(
     #     func=constraints.base_orientation,
@@ -404,32 +426,49 @@ class ConstraintsCfg:
     air_time = ConstraintTerm(
         func=constraints.air_time,
         max_p=0.25,
-        params={"limit": 0.25,
-                "velocity_deadzone": 0.1,
-                "asset_cfg": SceneEntityCfg("contact_forces", body_names=[
-                    "FL_foot.*", "FR_foot.*", "RL_foot.*", "RR_foot.*"
-                ])},
+        params={
+            "limit": 0.2,
+            "velocity_deadzone": 0.1,
+            "asset_cfg": SceneEntityCfg(
+                "contact_forces", body_names=["FL_foot.*", "FR_foot.*", "RL_foot.*", "RR_foot.*"]
+            ),
+        },
     )
     no_move = ConstraintTerm(
         func=constraints.no_move,
         max_p=0.1,
-        params={"velocity_deadzone": 0.1,
-                "joint_vel_limit": 4.0,
-                "asset_cfg": SceneEntityCfg("robot", joint_names=[
-                    "FL_hip.*", "FL_thigh.*", "FL_calf.*",
-                    "FR_hip.*", "FR_thigh.*", "FR_calf.*",
-                    "RL_hip.*", "RL_thigh.*", "RL_calf.*",
-                    "RR_hip.*", "RR_thigh.*", "RR_calf.*",
-                ])},
+        params={
+            "velocity_deadzone": 0.1,
+            "joint_vel_limit": 4.0,
+            "asset_cfg": SceneEntityCfg(
+                "robot",
+                joint_names=[
+                    "FL_hip.*",
+                    "FL_thigh.*",
+                    "FL_calf.*",
+                    "FR_hip.*",
+                    "FR_thigh.*",
+                    "FR_calf.*",
+                    "RL_hip.*",
+                    "RL_thigh.*",
+                    "RL_calf.*",
+                    "RR_hip.*",
+                    "RR_thigh.*",
+                    "RR_calf.*",
+                ],
+            ),
+        },
     )
     two_foot_contact = ConstraintTerm(
         func=constraints.n_foot_contact,
         max_p=0.25,
-        params={"number_of_desired_feet": 2,
-                "min_command_value": 0.5,
-                "asset_cfg": SceneEntityCfg("contact_forces", body_names=[
-                    "FL_foot.*", "FR_foot.*", "RL_foot.*", "RR_foot.*"
-                ])},
+        params={
+            "number_of_desired_feet": 2,
+            "min_command_value": 0.5,
+            "asset_cfg": SceneEntityCfg(
+                "contact_forces", body_names=["FL_foot.*", "FR_foot.*", "RL_foot.*", "RR_foot.*"]
+            ),
+        },
     )
 
 
@@ -445,11 +484,11 @@ class TerminationsCfg:
             "sensor_cfg": SceneEntityCfg(
                 "contact_forces",
                 body_names=[
-                    'base'
+                    "base"
                     # , 'FL_hip', 'FR_hip', 'RL_hip', 'RR_hip'
-                ]
+                ],
             ),
-            "threshold": 1.,
+            "threshold": 1.0,
         },
     )
 

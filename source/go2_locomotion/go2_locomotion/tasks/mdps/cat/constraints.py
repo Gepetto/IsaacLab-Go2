@@ -25,7 +25,6 @@ def joint_position(
     limit: float,
     asset_cfg: SceneEntityCfg,
 ) -> torch.Tensor:
-    robot = env.scene[asset_cfg.name]
     data = env.scene[asset_cfg.name].data
     cstr = torch.abs(data.joint_pos[:, asset_cfg.joint_ids]) - limit
     return cstr
@@ -37,20 +36,9 @@ def joint_position_when_moving_forward(
     velocity_deadzone: float,
     asset_cfg: SceneEntityCfg,
 ) -> torch.Tensor:
-    robot = env.scene[asset_cfg.name]
     data = env.scene[asset_cfg.name].data
-    cstr = (
-        torch.abs(data.joint_pos[:, asset_cfg.joint_ids] - data.default_joint_pos[:, asset_cfg.joint_ids])
-        - limit
-    )
-    cstr *= (
-        (
-            torch.abs(env.command_manager.get_command("base_velocity")[:, 1])
-            < velocity_deadzone
-        )
-        .float()
-        .unsqueeze(1)
-    )
+    cstr = torch.abs(data.joint_pos[:, asset_cfg.joint_ids] - data.default_joint_pos[:, asset_cfg.joint_ids]) - limit
+    cstr *= (torch.abs(env.command_manager.get_command("base_velocity")[:, 1]) < velocity_deadzone).float().unsqueeze(1)
     return cstr
 
 
@@ -59,7 +47,6 @@ def joint_torque(
     limit: float,
     asset_cfg: SceneEntityCfg,
 ) -> torch.Tensor:
-    robot = env.scene[asset_cfg.name]
     data = env.scene[asset_cfg.name].data
     cstr = torch.abs(data.applied_torque[:, asset_cfg.joint_ids]) - limit
     return cstr
@@ -70,7 +57,6 @@ def joint_velocity(
     limit: float,
     asset_cfg: SceneEntityCfg,
 ) -> torch.Tensor:
-    robot = env.scene[asset_cfg.name]
     data = env.scene[asset_cfg.name].data
     return torch.abs(data.joint_vel[:, asset_cfg.joint_ids]) - limit
 
@@ -80,7 +66,6 @@ def joint_acceleration(
     limit: float,
     asset_cfg: SceneEntityCfg,
 ) -> torch.Tensor:
-    robot = env.scene[asset_cfg.name]
     data = env.scene[asset_cfg.name].data
     return torch.abs(data.joint_acc[:, asset_cfg.joint_ids]) - limit
 
@@ -130,10 +115,7 @@ def air_time(
     last_air_time = contact_sensor.data.last_air_time[:, asset_cfg.body_ids]
     # Like in CaT
     command_more_than_limit = (
-        (
-            torch.norm(env.command_manager.get_command("base_velocity")[:, :3], dim=1)
-            > velocity_deadzone
-        )
+        (torch.norm(env.command_manager.get_command("base_velocity")[:, :3], dim=1) > velocity_deadzone)
         .float()
         .unsqueeze(1)
     )
@@ -158,9 +140,7 @@ def n_foot_contact(
     contact_cstr = torch.abs(
         (
             torch.max(
-                torch.norm(
-                    net_contact_forces[:, :, asset_cfg.body_ids], dim=-1
-                ),
+                torch.norm(net_contact_forces[:, :, asset_cfg.body_ids], dim=-1),
                 dim=1,
             )[0]
             > 1.0
@@ -168,8 +148,7 @@ def n_foot_contact(
         - number_of_desired_feet
     )
     command_more_than_limit = (
-        torch.norm(env.command_manager.get_command("base_velocity")[:, :3], dim=1)
-        > min_command_value
+        torch.norm(env.command_manager.get_command("base_velocity")[:, :3], dim=1) > min_command_value
     ).float()
     return contact_cstr * command_more_than_limit
 
@@ -179,12 +158,8 @@ def joint_range(
     limit: float,
     asset_cfg: SceneEntityCfg,
 ) -> torch.Tensor:
-    robot = env.scene[asset_cfg.name]
     data = env.scene[asset_cfg.name].data
-    return (
-        torch.abs(data.joint_pos[:, asset_cfg.joint_ids] - data.default_joint_pos[:, asset_cfg.joint_ids])
-        - limit
-    )
+    return torch.abs(data.joint_pos[:, asset_cfg.joint_ids] - data.default_joint_pos[:, asset_cfg.joint_ids]) - limit
 
 
 def action_rate(
@@ -198,12 +173,9 @@ def action_rate(
         - Improve realism and safety (important in simulation and real robots).
         - Encourage smoother policies.
     """
-    robot = env.scene[asset_cfg.name]
-    data = env.scene[asset_cfg.name].data
     return (
         torch.abs(
-            env.action_manager._action[:, asset_cfg.joint_ids]
-            - env.action_manager._prev_action[:, asset_cfg.joint_ids]
+            env.action_manager._action[:, asset_cfg.joint_ids] - env.action_manager._prev_action[:, asset_cfg.joint_ids]
         )
         / env.step_dt
         - limit
@@ -217,10 +189,7 @@ def foot_contact_force(
 ) -> torch.Tensor:
     contact_sensor = env.scene[asset_cfg.name]
     net_contact_forces = contact_sensor.data.net_forces_w_history
-    return (
-        torch.max(torch.norm(net_contact_forces[:, :, asset_cfg.body_ids], dim=-1), dim=1)[0]
-        - limit
-    )
+    return torch.max(torch.norm(net_contact_forces[:, :, asset_cfg.body_ids], dim=-1), dim=1)[0] - limit
 
 
 def min_base_height(
@@ -238,12 +207,8 @@ def no_move(
     joint_vel_limit: float,
     asset_cfg: SceneEntityCfg,
 ) -> torch.Tensor:
-    robot = env.scene[asset_cfg.name]
     data = env.scene[asset_cfg.name].data
-    cstr_nomove = (
-        torch.abs(data.joint_vel[:, asset_cfg.joint_ids]) - joint_vel_limit
-    ) * (
-        torch.norm(env.command_manager.get_command("base_velocity")[:, :3], dim=1)
-        < velocity_deadzone
+    cstr_nomove = (torch.abs(data.joint_vel[:, asset_cfg.joint_ids]) - joint_vel_limit) * (
+        torch.norm(env.command_manager.get_command("base_velocity")[:, :3], dim=1) < velocity_deadzone
     ).float().unsqueeze(1)
     return cstr_nomove

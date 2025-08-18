@@ -60,3 +60,30 @@ class Go2FlatPPORunnerCfg(CleanRlPpoActorCriticCfg):
 
     load_run = ".*"
     load_checkpoint = "model_.*.pt"
+
+
+@configclass
+class Go2FlatPPOCaTRunnerCfg(CleanRlPpoActorCriticCfg):
+    save_interval = 1000
+
+    learning_rate = 1.0e-3
+    num_steps = 24
+    num_iterations = 600
+    gamma = 0.99
+    gae_lambda = 0.95
+    updates_epochs = 5
+    minibatch_size = 16384
+    clip_coef = 0.2
+    ent_coef = 0.01
+    vf_coef = 2.0
+    max_grad_norm = 1.0
+    norm_adv = True
+    clip_vloss = True
+    anneal_lr = True
+
+    experiment_name = "go2_CaT_flat"
+    logger = "tensorboard"
+    wandb_project = "go2_CaT_flat"
+
+    load_run = ".*"
+    load_checkpoint = "model_.*.pt"

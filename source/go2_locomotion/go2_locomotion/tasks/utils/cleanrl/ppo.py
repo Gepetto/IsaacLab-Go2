@@ -63,28 +63,34 @@ def layer_init(layer, std=np.sqrt(2), bias_const=0.0):
 
 
 class Agent(nn.Module):
-    def __init__(self, envs):
+    def __init__(self, envs, actor=None, critic=None):
         super().__init__()
         SINGLE_OBSERVATION_SPACE = envs.unwrapped.single_observation_space["policy"].shape
         SINGLE_ACTION_SPACE = envs.unwrapped.single_action_space.shape
-        self.critic = nn.Sequential(
-            layer_init(nn.Linear(np.array(SINGLE_OBSERVATION_SPACE).prod(), 128)),
-            nn.ELU(),
-            layer_init(nn.Linear(128, 128)),
-            nn.ELU(),
-            layer_init(nn.Linear(128, 128)),
-            nn.ELU(),
-            layer_init(nn.Linear(128, 1), std=1.0),
-        )
-        self.actor_mean = nn.Sequential(
-            layer_init(nn.Linear(np.array(SINGLE_OBSERVATION_SPACE).prod(), 128)),
-            nn.ELU(),
-            layer_init(nn.Linear(128, 128)),
-            nn.ELU(),
-            layer_init(nn.Linear(128, 128)),
-            nn.ELU(),
-            layer_init(nn.Linear(128, np.prod(SINGLE_ACTION_SPACE)), std=0.01),
-        )
+        if critic is None:
+            self.critic = nn.Sequential(
+                layer_init(nn.Linear(np.array(SINGLE_OBSERVATION_SPACE).prod(), 128)),
+                nn.ELU(),
+                layer_init(nn.Linear(128, 128)),
+                nn.ELU(),
+                layer_init(nn.Linear(128, 128)),
+                nn.ELU(),
+                layer_init(nn.Linear(128, 1), std=1.0),
+            )
+        else:
+            self.critic = critic
+        if actor is None:
+            self.actor_mean = nn.Sequential(
+                layer_init(nn.Linear(np.array(SINGLE_OBSERVATION_SPACE).prod(), 128)),
+                nn.ELU(),
+                layer_init(nn.Linear(128, 128)),
+                nn.ELU(),
+                layer_init(nn.Linear(128, 128)),
+                nn.ELU(),
+                layer_init(nn.Linear(128, np.prod(SINGLE_ACTION_SPACE)), std=0.01),
+            )
+        else:
+            self.actor_mean = actor
         self.actor_logstd = nn.Parameter(torch.zeros(1, np.prod(SINGLE_ACTION_SPACE)))
 
         self.obs_rms = RunningMeanStd(shape=SINGLE_OBSERVATION_SPACE)
@@ -154,7 +160,7 @@ def PPO(envs, ppo_cfg, run_path):
 
     BATCH_SIZE = int(NUM_ENVS * NUM_STEPS)
 
-    agent = Agent(envs).to(device)
+    agent = Agent(envs, ppo_cfg.actor, ppo_cfg.critic).to(device)
     optimizer = optim.RAdam(agent.parameters(), lr=LEARNING_RATE, eps=1e-5)
 
     obs = torch.zeros((NUM_STEPS, NUM_ENVS) + SINGLE_OBSERVATION_SPACE, dtype=torch.float).to(device)

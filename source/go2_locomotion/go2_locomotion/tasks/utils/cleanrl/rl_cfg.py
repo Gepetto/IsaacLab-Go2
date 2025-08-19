@@ -4,18 +4,18 @@
 # SPDX-License-Identifier: BSD-3-Clause
 
 from dataclasses import MISSING
-from torch.nn.modules import Module
 from typing import Literal
 
 from isaaclab.utils import configclass
+
+from .ppo import Agent
 
 
 @configclass
 class CleanRlPpoActorCriticCfg:
     seed: int = 42
 
-    actor: Module = None
-    critic: Module = None
+    agent: Agent = None
 
     save_interval: int = MISSING
 

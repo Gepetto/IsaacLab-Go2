@@ -60,21 +60,24 @@ class MySceneCfg(InteractiveSceneCfg):
     )
     lidar_sensor = LidarSensorCfg(
         prim_path="{ENV_REGEX_NS}/Robot/base",
-        offset=LidarSensorCfg.OffsetCfg(pos=(0.0, 0.0, 0.0), rot=(0, 1, 0.0, 0.0)),
+        offset=LidarSensorCfg.OffsetCfg(
+            pos=(0.28945, 0.0, -0.046825),
+            rot=(-0.0652631, 0.113039, -0.495722, 0.858616),
+        ),
         attach_yaw_only=False,
         ray_alignment="world",
         pattern_cfg=LivoxPatternCfg(
-            sensor_type="mid360",
-            samples=24000,  # Reduced for better performance with 1024 envs
+            sensor_type="mid70",
+            samples=200,  # Reduced for better performance with 1024 envs
         ),
         mesh_prim_paths=["/World/ground", "/World/static"],
-        max_distance=20.0,
+        max_distance=10.0,
         min_range=0.2,
         return_pointcloud=False,  # Disable pointcloud for performance
         pointcloud_in_world_frame=False,
         enable_sensor_noise=False,  # Disable noise for pure performance test
         random_distance_noise=0.0,
-        update_frequency=25.0,  # 25 Hz for better performance
+        update_frequency=15.0,  # 25 Hz for better performance
         debug_vis=True,  # Disable visualization for performance
     )
     contact_forces = ContactSensorCfg(prim_path="{ENV_REGEX_NS}/Robot/.*", history_length=3, track_air_time=True)
@@ -259,7 +262,7 @@ class Go2LidarEnvCfg(Go2LidarBaseEnvCfg):
         self.scene.terrain.terrain_type = "plane"
         self.scene.terrain.terrain_generator = None
 
-        self.scene.lidar_sensor.update_period = self.decimation * self.sim.dt  # 50 Hz
+        self.scene.lidar_sensor.update_period = 1.0 / 15.0  # 15 Hz
 
 
 class Go2LidarEnvCfg_PLAY(Go2LidarEnvCfg):

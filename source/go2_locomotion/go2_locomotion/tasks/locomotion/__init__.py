@@ -1,3 +1,4 @@
 """Locomotion environments for legged robots."""
 
-from .velocity import *  # noqa
+from .velocity_blind import *  # noqa
+from .velocity_lidar import *  # noqa

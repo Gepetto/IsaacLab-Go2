@@ -9,7 +9,7 @@ from . import agents, cat_flat_env_cfg, flat_env_cfg, rough_env_cfg
 ##
 
 gym.register(
-    id="Go2-Velocity-Flat",
+    id="Go2-Velocity-Blind-Flat",
     entry_point="isaaclab.envs:ManagerBasedRLEnv",
     disable_env_checker=True,
     kwargs={
@@ -20,7 +20,7 @@ gym.register(
 )
 
 gym.register(
-    id="Go2-Velocity-Flat-Play",
+    id="Go2-Velocity-Blind-Flat-Play",
     entry_point="isaaclab.envs:ManagerBasedRLEnv",
     disable_env_checker=True,
     kwargs={
@@ -31,7 +31,7 @@ gym.register(
 )
 
 gym.register(
-    id="Go2-Velocity-Rough",
+    id="Go2-Velocity-Blind-Rough",
     entry_point="isaaclab.envs:ManagerBasedRLEnv",
     disable_env_checker=True,
     kwargs={
@@ -42,7 +42,7 @@ gym.register(
 )
 
 gym.register(
-    id="Go2-Velocity-Rough-Play",
+    id="Go2-Velocity-Blind-Rough-Play",
     entry_point="isaaclab.envs:ManagerBasedRLEnv",
     disable_env_checker=True,
     kwargs={
@@ -53,7 +53,7 @@ gym.register(
 )
 
 gym.register(
-    id="Go2-CaT-Velocity-Flat",
+    id="Go2-CaT-Velocity-Blind-Flat",
     entry_point=CaTEnv,
     disable_env_checker=True,
     kwargs={
@@ -63,7 +63,7 @@ gym.register(
 )
 
 gym.register(
-    id="Go2-CaT-Velocity-Flat-Play",
+    id="Go2-CaT-Velocity-Blind-Flat-Play",
     entry_point=CaTEnv,
     disable_env_checker=True,
     kwargs={

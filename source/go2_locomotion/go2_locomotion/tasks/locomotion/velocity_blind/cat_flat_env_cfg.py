@@ -6,7 +6,7 @@ from isaaclab.managers import SceneEntityCfg
 from isaaclab.managers import TerminationTermCfg as DoneTerm
 from isaaclab.utils import configclass
 
-import go2_locomotion.tasks.locomotion.velocity.mdp as mdp
+import go2_locomotion.tasks.locomotion.mdp as mdp
 import go2_locomotion.tasks.utils.cat.constraints as constraints
 import go2_locomotion.tasks.utils.cat.curriculums as curriculums
 from go2_locomotion.tasks.utils.cat.manager_constraint_cfg import ConstraintTermCfg as ConstraintTerm

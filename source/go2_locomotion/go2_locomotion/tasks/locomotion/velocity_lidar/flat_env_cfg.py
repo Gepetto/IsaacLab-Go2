@@ -6,33 +6,9 @@ from isaaclab.managers import SceneEntityCfg
 from isaaclab.managers import TerminationTermCfg as DoneTerm
 from isaaclab.utils import configclass
 
-import go2_locomotion.tasks.locomotion.velocity.mdp as mdp
+import go2_locomotion.tasks.locomotion.mdp as mdp
 
 from .go2_base_env_cfg import GO2BaseEnvCfg
-
-
-@configclass
-class CommandsCfg:
-    """Command specifications for the MDP."""
-
-    base_velocity = mdp.UniformLevelVelocityCommandCfg(
-        asset_name="robot",
-        resampling_time_range=(10.0, 10.0),
-        rel_standing_envs=0.02,
-        rel_heading_envs=1.0,
-        heading_command=True,
-        heading_control_stiffness=0.5,
-        debug_vis=True,
-        ranges=mdp.UniformLevelVelocityCommandCfg.Ranges(
-            lin_vel_x=(-0.1, 0.1),
-            lin_vel_y=(-0.1, 0.1),
-            ang_vel_z=(-math.pi / 2.0, math.pi / 2.0),
-            heading=(-math.pi, math.pi),
-        ),
-        limit_ranges=mdp.UniformLevelVelocityCommandCfg.Ranges(
-            lin_vel_x=(-1.0, 1.0), lin_vel_y=(-0.6, 0.6), ang_vel_z=(-math.pi, math.pi)
-        ),
-    )
 
 
 @configclass
@@ -82,7 +58,7 @@ class RewardsCfg:
     )
     air_time_variance = RewTerm(
         func=mdp.air_time_variance_penalty,
-        weight=-1.5,
+        weight=-1.0,
         params={"sensor_cfg": SceneEntityCfg("contact_forces", body_names=".*_foot")},
     )
     feet_slide = RewTerm(
@@ -127,8 +103,7 @@ class CurriculumCfg:
 
 
 @configclass
-class Go2RoughEnvCfg(GO2BaseEnvCfg):
-    commands: CommandsCfg = CommandsCfg()
+class Go2FlatEnvCfg(GO2BaseEnvCfg):
 
     # MDP settings
     rewards: RewardsCfg = RewardsCfg()
@@ -138,32 +113,20 @@ class Go2RoughEnvCfg(GO2BaseEnvCfg):
     def __post_init__(self):
         # post init of parent
         super().__post_init__()
-        # scale down the terrains because the robot is small
-        self.scene.terrain.terrain_generator.curriculum = True
-        self.scene.terrain.terrain_generator.sub_terrains["boxes"].grid_height_range = (0.025, 0.1)
-        self.scene.terrain.terrain_generator.sub_terrains["random_rough"].noise_range = (0.01, 0.06)
-        self.scene.terrain.terrain_generator.sub_terrains["random_rough"].noise_step = 0.01
 
-        # event
-        self.events.push_robot = None
+        # change terrain to flat
+        self.scene.terrain.terrain_type = "plane"
+        self.scene.terrain.terrain_generator = None
 
 
-@configclass
-class Go2RoughEnvCfg_PLAY(Go2RoughEnvCfg):
-    def __post_init__(self):
+class Go2FlatEnvCfg_PLAY(Go2FlatEnvCfg):
+    def __post_init__(self) -> None:
         # post init of parent
         super().__post_init__()
 
         # make a smaller scene for play
         self.scene.num_envs = 50
         self.scene.env_spacing = 2.5
-        # spawn the robot randomly in the grid (instead of their terrain levels)
-        self.scene.terrain.max_init_terrain_level = None
-        # reduce the number of terrains to save memory
-        self.scene.terrain.terrain_generator.num_rows = 5
-        self.scene.terrain.terrain_generator.num_cols = 5
-        self.scene.terrain.terrain_generator.curriculum = False
-
         # disable randomization for play
         self.observations.policy.enable_corruption = False
         # remove random pushing

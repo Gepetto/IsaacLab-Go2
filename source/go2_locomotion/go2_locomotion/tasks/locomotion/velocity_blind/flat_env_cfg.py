@@ -6,7 +6,7 @@ from isaaclab.managers import SceneEntityCfg
 from isaaclab.managers import TerminationTermCfg as DoneTerm
 from isaaclab.utils import configclass
 
-import go2_locomotion.tasks.locomotion.velocity.mdp as mdp
+import go2_locomotion.tasks.locomotion.mdp as mdp
 
 from .go2_base_env_cfg import GO2BaseEnvCfg
 

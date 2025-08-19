@@ -51,7 +51,7 @@ python -m pip install -e source/go2_locomotion
 - Verify that the extension is correctly installed by running the following command:
 
 ```bash
-python scripts/rsl_rl/train.py --task=Go2-Velocity-Flat
+python scripts/rsl_rl/train.py --task=Go2-Blind-Velocity-Flat
 ```
 
 ### Set up IDE (Optional)

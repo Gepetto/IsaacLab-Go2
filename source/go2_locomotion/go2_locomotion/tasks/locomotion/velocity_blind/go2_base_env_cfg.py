@@ -15,7 +15,7 @@ from isaaclab.terrains import TerrainImporterCfg
 from isaaclab.utils import configclass
 from isaaclab.utils.noise import AdditiveUniformNoiseCfg as Unoise
 
-import go2_locomotion.tasks.locomotion.velocity.mdp as mdp
+import go2_locomotion.tasks.locomotion.mdp as mdp
 
 ##
 # Pre-defined configs

@@ -9,7 +9,7 @@ from go2_locomotion.tasks.utils.cleanrl.rl_cfg import CleanRlPpoActorCriticCfg
 
 
 @configclass
-class Go2FlatPPORunnerCfg(CleanRlPpoActorCriticCfg):
+class Go2PrivilegedPPORunnerCfg(CleanRlPpoActorCriticCfg):
     save_interval = 1000
 
     learning_rate = 1.0e-3

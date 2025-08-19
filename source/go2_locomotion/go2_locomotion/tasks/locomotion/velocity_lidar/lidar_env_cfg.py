@@ -8,7 +8,7 @@ from isaaclab.utils import configclass
 
 import go2_locomotion.tasks.locomotion.mdp as mdp
 
-from .go2_base_env_cfg import GO2BaseEnvCfg
+from .go2_lidar_base_env_cfg import Go2LidarBaseEnvCfg
 
 
 @configclass
@@ -103,7 +103,7 @@ class CurriculumCfg:
 
 
 @configclass
-class Go2FlatEnvCfg(GO2BaseEnvCfg):
+class Go2FlatEnvCfg(Go2LidarBaseEnvCfg):
 
     # MDP settings
     rewards: RewardsCfg = RewardsCfg()

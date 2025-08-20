@@ -67,8 +67,10 @@ class MySceneCfg(InteractiveSceneCfg):
         attach_yaw_only=False,
         ray_alignment="world",
         pattern_cfg=LivoxPatternCfg(
-            sensor_type="mid70",
-            samples=200,  # Reduced for better performance with 1024 envs
+            sensor_type="mid360",
+            samples=1024,  # Reduced for better performance with 1024 envs
+            # horizontal_line_num=8,
+            # vertical_line_num=20,
         ),
         mesh_prim_paths=["/World/ground", "/World/static"],
         max_distance=10.0,
@@ -259,9 +261,6 @@ class Go2LidarEnvCfg(Go2LidarBaseEnvCfg):
         super().__post_init__()
 
         # change terrain to flat
-        self.scene.terrain.terrain_type = "plane"
-        self.scene.terrain.terrain_generator = None
-
         self.scene.lidar_sensor.update_period = 1.0 / 15.0  # 15 Hz
 
 

@@ -73,8 +73,10 @@ import isaaclab_tasks  # noqa: F401
 from isaaclab.envs import DirectMARLEnv, multi_agent_to_single_agent
 from isaaclab.utils.dict import print_dict
 from isaaclab.utils.pretrained_checkpoint import get_published_pretrained_checkpoint
-from isaaclab_rl.sb3 import L2tSb3VecEnvGPUWrapper, Sb3VecEnvWrapper, process_sb3_cfg
+from isaaclab_rl.sb3 import Sb3VecEnvWrapper, process_sb3_cfg
 from isaaclab_tasks.utils.parse_cfg import get_checkpoint_path, load_cfg_from_registry, parse_env_cfg
+
+from go2_locomotion.tasks.utils.rl.sb3 import L2tSb3VecEnvGPUWrapper
 
 
 def main():
@@ -86,7 +88,7 @@ def main():
         num_envs=args_cli.num_envs,
         use_fabric=not args_cli.disable_fabric,
     )
-    agent_cfg = load_cfg_from_registry(args_cli.task, "sb3_cfg_entry_point")
+    agent_cfg = load_cfg_from_registry(args_cli.task, "rlopt_cfg_entry_point")
     # post-process agent configuration
     agent_cfg = process_sb3_cfg(agent_cfg)  # type: ignore
 
@@ -108,7 +110,7 @@ def main():
         )
 
     # directory for logging into
-    log_root_path = os.path.join("logs", "sb3", args_cli.task)
+    log_root_path = os.path.join("logs", "rlopt", args_cli.task)
     log_root_path = os.path.abspath(log_root_path)
     # checkpoint and log_dir stuff
     if args_cli.use_pretrained_checkpoint:
@@ -153,12 +155,12 @@ def main_l2t_student():
         num_envs=args_cli.num_envs,
         use_fabric=not args_cli.disable_fabric,
     )
-    agent_cfg = load_cfg_from_registry(args_cli.task, "sb3_cfg_entry_point")
+    agent_cfg = load_cfg_from_registry(args_cli.task, "rlopt_cfg_entry_point")
     # post-process agent configuration
     agent_cfg = process_sb3_cfg(agent_cfg)  # type: ignore
 
     # directory for logging into
-    log_dir = os.path.join("logs", "sb3", args_cli.task, datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
+    log_dir = os.path.join("logs", "rlopt", args_cli.task, datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
 
     # create isaac environment
     env = gym.make(args_cli.task, cfg=env_cfg, render_mode="rgb_array" if args_cli.video else None)
@@ -242,7 +244,7 @@ def main_recurrentl2t_teacher():
         num_envs=args_cli.num_envs,
         use_fabric=not args_cli.disable_fabric,
     )
-    agent_cfg = load_cfg_from_registry(args_cli.task, "sb3_cfg_entry_point")
+    agent_cfg = load_cfg_from_registry(args_cli.task, "rlopt_cfg_entry_point")
     # post-process agent configuration
     agent_cfg = process_sb3_cfg(agent_cfg)  # type: ignore
 
@@ -278,7 +280,7 @@ def main_recurrentl2t_teacher():
         )
 
     # directory for logging into
-    log_root_path = os.path.join("logs", "sb3", args_cli.task)
+    log_root_path = os.path.join("logs", "rlopt", args_cli.task)
     log_root_path = os.path.abspath(log_root_path)
     # check checkpoint is valid
     if args_cli.checkpoint is None:
@@ -300,6 +302,7 @@ def main_recurrentl2t_teacher():
         # run everything in inference mode
         with torch.inference_mode():
             obs = {"teacher": obs["teacher"].cpu().numpy()}
+            obs["teacher"][:, 6] = 0.5
 
             # agent stepping
             # actions, _ = agent.student_predict(obs, deterministic=True)  # type: ignore
@@ -309,7 +312,7 @@ def main_recurrentl2t_teacher():
             # env stepping
             obs, reward, dones, info = env.step(actions)
 
-        print("step:", timestep)
+        # print("step:", timestep)
         if args_cli.video:
             timestep += 1
             # Exit the play loop after recording one video
@@ -329,12 +332,12 @@ def main_recurrentl2t_student():
         num_envs=args_cli.num_envs,
         use_fabric=not args_cli.disable_fabric,
     )
-    agent_cfg = load_cfg_from_registry(args_cli.task, "sb3_cfg_entry_point")
+    agent_cfg = load_cfg_from_registry(args_cli.task, "rlopt_cfg_entry_point")
     # post-process agent configuration
     agent_cfg = process_sb3_cfg(agent_cfg)  # type: ignore
 
     # directory for logging into
-    log_dir = os.path.join("logs", "sb3", args_cli.task, datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
+    log_dir = os.path.join("logs", "rlopt", args_cli.task, datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
 
     # create isaac environment
     env = gym.make(args_cli.task, cfg=env_cfg, render_mode="rgb_array" if args_cli.video else None)
@@ -365,7 +368,7 @@ def main_recurrentl2t_student():
         )
 
     # directory for logging into
-    log_root_path = os.path.join("logs", "sb3", args_cli.task)
+    log_root_path = os.path.join("logs", "rlopt", args_cli.task)
     log_root_path = os.path.abspath(log_root_path)
     # check checkpoint is valid
     if args_cli.checkpoint is None:
@@ -391,6 +394,7 @@ def main_recurrentl2t_student():
         # run everything in inference mode
         with torch.inference_mode():
             obs = {"student": obs["student"].cpu().numpy()}
+            obs["student"][:, 3] = 0.5
 
             # agent stepping
             # actions, _ = agent.student_predict(obs, deterministic=True)  # type: ignore
@@ -405,7 +409,7 @@ def main_recurrentl2t_student():
             _last_lstm_states = lstm_states
             _last_episode_starts = dones
             episode_starts = _last_episode_starts.clone().to(agent.device).type(torch.float32)
-        print("step:", timestep)
+        # print("step:", timestep)
         # i += 1
         # if i == 10:
         #     break
@@ -420,13 +424,13 @@ def main_recurrentl2t_student():
 
 
 if __name__ == "__main__":
-    if args_cli.l2t:
-        # run the main function
-        # main_l2t_student()
-        # main_recurrentl2t_teacher()
-        main_recurrentl2t_student()
-    else:
-        # run the main function
-        main()
+    # if args_cli.l2t:
+    #     # run the main function
+    #     # main_l2t_student()
+    # else:
+    #     # run the main function
+    #     main()
+    main_recurrentl2t_teacher()
+    # main_recurrentl2t_student()
     # close sim app
     simulation_app.close()

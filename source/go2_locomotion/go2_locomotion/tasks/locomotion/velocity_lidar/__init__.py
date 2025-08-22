@@ -62,6 +62,6 @@ gym.register(
     disable_env_checker=True,
     kwargs={
         "env_cfg_entry_point": go2_bling_l2t_env_cfg.Go2L2TTestEnvCfg_PLAY,
-        "rlopt_cfg_entry_point": f"{agents.__name__}:rlopt_ppo_cfg.yaml",
+        "rlopt_cfg_entry_point": f"{agents.__name__}:rlopt_l2t_cfg.yaml",
     },
 )

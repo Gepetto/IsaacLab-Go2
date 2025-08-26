@@ -63,9 +63,9 @@ def layer_init(layer, std=np.sqrt(2), bias_const=0.0):
 
 
 class Agent(nn.Module):
-    def __init__(self, envs):
+    def __init__(self, envs, observation_group: str = "policy"):
         super().__init__()
-        SINGLE_OBSERVATION_SPACE = envs.unwrapped.single_observation_space["policy"].shape
+        SINGLE_OBSERVATION_SPACE = envs.unwrapped.single_observation_space[observation_group].shape
         SINGLE_ACTION_SPACE = envs.unwrapped.single_action_space.shape
         self.critic = nn.Sequential(
             layer_init(nn.Linear(np.array(SINGLE_OBSERVATION_SPACE).prod(), 128)),

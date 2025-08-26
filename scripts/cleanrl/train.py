@@ -31,6 +31,12 @@ parser.add_argument(
     default=2000,
     help="Interval between video recordings (in steps).",
 )
+parser.add_argument(
+    "--expert_run_path",
+    type=str,
+    default=None,
+    help="Path to folder containing dataset with expert examples.",
+)
 parser.add_argument("--num_envs", type=int, default=None, help="Number of environments to simulate.")
 parser.add_argument("--task", type=str, default=None, help="Name of the task.")
 parser.add_argument("--seed", type=int, default=None, help="Seed used for the environment")
@@ -66,7 +72,9 @@ from isaaclab.utils.io import dump_pickle, dump_yaml
 from isaaclab_tasks.utils.hydra import hydra_task_config
 
 import go2_locomotion.tasks  # noqa: F401  # noqa: F401
+from go2_locomotion.tasks.utils.cleanrl.ddpg import DDPG
 from go2_locomotion.tasks.utils.cleanrl.ppo import PPO
+from go2_locomotion.tasks.utils.cleanrl.rl_cfg import CleanRlPpoActorCriticCfg
 
 torch.backends.cuda.matmul.allow_tf32 = True
 torch.backends.cudnn.allow_tf32 = True
@@ -99,6 +107,8 @@ def main(
     log_dir = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     log_dir = os.path.join(log_root_path, log_dir)
 
+    expert_run_path = os.path.join(log_root_path, args_cli.expert_run_path)
+
     # dump the configuration into log-directory
     dump_yaml(os.path.join(log_root_path, log_dir, "params", "env.yaml"), env_cfg)
     dump_yaml(os.path.join(log_root_path, log_dir, "params", "agent.yaml"), agent_cfg)
@@ -119,7 +129,10 @@ def main(
         print_dict(video_kwargs, nesting=4)
         env = gym.wrappers.RecordVideo(env, **video_kwargs)
 
-    PPO(env, agent_cfg, log_dir)
+    if isinstance(agent_cfg, CleanRlPpoActorCriticCfg):
+        PPO(env, agent_cfg, log_dir)
+    else:
+        DDPG(env, agent_cfg, log_dir, expert_run_path)
 
     # close the simulator
     env.close()

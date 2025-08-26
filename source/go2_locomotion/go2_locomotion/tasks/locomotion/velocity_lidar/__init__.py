@@ -1,6 +1,6 @@
 import gymnasium as gym
 
-from . import agents, lidar_env_cfg, privileged_env_cfg
+from . import agents, lidar_env_cfg, privileged_data_generation_env_cfg, privileged_env_cfg
 
 ##
 # Register Gym environments.
@@ -12,7 +12,7 @@ gym.register(
     disable_env_checker=True,
     kwargs={
         "env_cfg_entry_point": privileged_env_cfg.Go2PrivilegedEnvCfg,
-        "clean_rl_cfg_entry_point": f"{agents.__name__}.clean_rl_ppo_cfg:Go2PrivilegedPPORunnerCfg",
+        "clean_rl_cfg_entry_point": f"{agents.__name__}.clean_rl_parkour_cfg:Go2PrivilegedPPORunnerCfg",
     },
 )
 
@@ -22,9 +22,30 @@ gym.register(
     disable_env_checker=True,
     kwargs={
         "env_cfg_entry_point": privileged_env_cfg.Go2PrivilegedEnvCfg_PLAY,
-        "clean_rl_cfg_entry_point": f"{agents.__name__}.clean_rl_ppo_cfg:Go2PrivilegedPPORunnerCfg",
+        "clean_rl_cfg_entry_point": f"{agents.__name__}.clean_rl_parkour_cfg:Go2PrivilegedPPORunnerCfg",
     },
 )
+
+gym.register(
+    id="Go2-Privileged-Velocity-Generate",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": privileged_data_generation_env_cfg.Go2PrivilegedDataGenerationEnvCfg,
+        "clean_rl_cfg_entry_point": f"{agents.__name__}.clean_rl_parkour_cfg:Go2PrivilegedDDPGRunnerCfg",
+    },
+)
+
+gym.register(
+    id="Go2-Privileged-Velocity-Transfer",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": privileged_data_generation_env_cfg.Go2PrivilegedDataGenerationEnvCfg,
+        "clean_rl_cfg_entry_point": f"{agents.__name__}.clean_rl_parkour_cfg:Go2PrivilegedDDPGRunnerCfg",
+    },
+)
+
 
 gym.register(
     id="Go2-Lidar-Velocity",

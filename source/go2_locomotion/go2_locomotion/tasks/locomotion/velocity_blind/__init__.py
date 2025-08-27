@@ -2,7 +2,7 @@ import gymnasium as gym
 
 from go2_locomotion.tasks.utils.cat.cat_env import CaTEnv
 
-from . import agents, cat_flat_env_cfg, flat_env_cfg, flat_torque_env_cfg, rough_env_cfg
+from . import agents, cat_flat_env_cfg, flat_env_cfg, flat_pd_plus_env_cfg, flat_torque_env_cfg, rough_env_cfg
 
 ##
 # Register Gym environments.
@@ -31,11 +31,21 @@ gym.register(
 )
 
 gym.register(
-    id="Go2-Velocity-Blind-Flat-Torque-Play",
+    id="Go2-Velocity-Blind-Flat-Torque",
     entry_point="isaaclab.envs:ManagerBasedRLEnv",
     disable_env_checker=True,
     kwargs={
-        "env_cfg_entry_point": flat_torque_env_cfg.Go2FlatEnvCfg_PLAY,
+        "env_cfg_entry_point": flat_torque_env_cfg.Go2FlatEnvCfg,
+        "clean_rl_cfg_entry_point": f"{agents.__name__}.clean_rl_ppo_cfg:Go2RoughPPORunnerCfg",
+    },
+)
+
+gym.register(
+    id="Go2-Velocity-Blind-Flat-PD-Plus",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": flat_pd_plus_env_cfg.Go2FlatEnvCfg,
         "clean_rl_cfg_entry_point": f"{agents.__name__}.clean_rl_ppo_cfg:Go2RoughPPORunnerCfg",
     },
 )

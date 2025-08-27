@@ -102,8 +102,8 @@ class CommandsCfg:
         heading_control_stiffness=0.5,
         debug_vis=True,
         ranges=mdp.UniformLevelVelocityCommandCfg.Ranges(
-            lin_vel_x=(-0.1, 0.1),
-            lin_vel_y=(-0.1, 0.1),
+            lin_vel_x=(-1.0, 1.0),
+            lin_vel_y=(-0.6, 0.6),
             ang_vel_z=(-math.pi / 4, math.pi / 4),
             heading=(-math.pi, math.pi),
         ),

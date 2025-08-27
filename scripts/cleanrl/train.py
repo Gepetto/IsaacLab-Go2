@@ -66,7 +66,7 @@ from isaaclab.utils.io import dump_pickle, dump_yaml
 from isaaclab_tasks.utils.hydra import hydra_task_config
 
 import go2_locomotion.tasks  # noqa: F401  # noqa: F401
-from go2_locomotion.tasks.utils.cleanrl.ppo import PPO
+from go2_locomotion.tasks.utils.cleanrl.ppo_pd_plus import PPO
 
 torch.backends.cuda.matmul.allow_tf32 = True
 torch.backends.cudnn.allow_tf32 = True

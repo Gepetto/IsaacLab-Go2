@@ -104,7 +104,7 @@ class CommandsCfg:
         ranges=mdp.UniformLevelVelocityCommandCfg.Ranges(
             lin_vel_x=(-0.1, 0.1),
             lin_vel_y=(-0.1, 0.1),
-            ang_vel_z=(-math.pi / 2.0, math.pi / 2.0),
+            ang_vel_z=(-math.pi / 4, math.pi / 4),
             heading=(-math.pi, math.pi),
         ),
         limit_ranges=mdp.UniformLevelVelocityCommandCfg.Ranges(

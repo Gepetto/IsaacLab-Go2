@@ -3,18 +3,49 @@
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
+import numpy as np
+from torch import nn
+
 from isaaclab.utils import configclass
 
+from go2_locomotion.tasks.utils.cleanrl.ppo import Agent, layer_init
 from go2_locomotion.tasks.utils.cleanrl.rl_cfg import CleanRlPpoActorCriticCfg
+
+
+class TorqueAgent(Agent):
+    def __init__(self, envs):
+        super().__init__(envs)
+        SINGLE_OBSERVATION_SPACE = envs.unwrapped.single_observation_space["policy"].shape
+        SINGLE_ACTION_SPACE = envs.unwrapped.single_action_space.shape
+        self.critic = nn.Sequential(
+            layer_init(nn.Linear(np.array(SINGLE_OBSERVATION_SPACE).prod(), 512)),
+            nn.ELU(),
+            layer_init(nn.Linear(512, 256)),
+            nn.ELU(),
+            layer_init(nn.Linear(256, 128)),
+            nn.ELU(),
+            layer_init(nn.Linear(128, 1), std=1.0),
+        )
+        self.actor_mean = nn.Sequential(
+            layer_init(nn.Linear(np.array(SINGLE_OBSERVATION_SPACE).prod(), 512)),
+            nn.ELU(),
+            layer_init(nn.Linear(512, 256)),
+            nn.ELU(),
+            layer_init(nn.Linear(256, 128)),
+            nn.ELU(),
+            layer_init(nn.Linear(128, np.prod(SINGLE_ACTION_SPACE)), std=0.01),
+        )
 
 
 @configclass
 class Go2RoughPPORunnerCfg(CleanRlPpoActorCriticCfg):
-    save_interval = 50
+    save_interval = 500
+
+    agent = TorqueAgent
 
     learning_rate = 1.0e-3
-    num_steps = 24
-    num_iterations = 5000
+    num_steps = 80
+    num_iterations = 3000
     gamma = 0.99
     gae_lambda = 0.95
     updates_epochs = 5

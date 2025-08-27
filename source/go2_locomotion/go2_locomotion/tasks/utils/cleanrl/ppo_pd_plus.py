@@ -376,5 +376,7 @@ def PPO(envs, ppo_cfg, run_path):
 
         if (iteration + 1) % ppo_cfg.save_interval == 0:
             model_path = f"{run_path}/model_{iteration}.pt"
+            robot_model_path = f"{run_path}/robot_model_{iteration}.pt"
             torch.save(agent.state_dict(), model_path)
+            torch.save(robot_model.state_dict(), robot_model_path)
             print("Saved model")

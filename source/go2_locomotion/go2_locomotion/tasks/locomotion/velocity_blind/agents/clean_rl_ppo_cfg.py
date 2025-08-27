@@ -44,8 +44,8 @@ class Go2RoughPPORunnerCfg(CleanRlPpoActorCriticCfg):
     agent = TorqueAgent
 
     learning_rate = 1.0e-3
-    num_steps = 80
-    num_iterations = 3000
+    num_steps = 120
+    num_iterations = 1000
     gamma = 0.99
     gae_lambda = 0.95
     updates_epochs = 5

@@ -221,6 +221,30 @@ def DDPG(envs, ddpg_cfg, run_path, expert_run_path):
         # TRY NOT TO MODIFY: execute the game and log data.
         next_obs, rewards, terminations, true_dones, infos = envs.step(actions)
 
+        ep_infos = []
+        if "episode" in infos:
+            ep_infos.append(infos["episode"])
+        elif "log" in infos:
+            ep_infos.append(infos["log"])
+
+        # Adapted from rslrl
+        for key in ep_infos[0]:
+            infotensor = torch.tensor([], device=device)
+            for ep_info in ep_infos:
+                # handle scalar and zero dimensional tensor infos
+                if key not in ep_info:
+                    continue
+                if not isinstance(ep_info[key], torch.Tensor):
+                    ep_info[key] = torch.Tensor([ep_info[key]])
+                if len(ep_info[key].shape) == 0:
+                    ep_info[key] = ep_info[key].unsqueeze(0)
+                infotensor = torch.cat((infotensor, ep_info[key].to(device)))
+            value = torch.mean(infotensor)
+            if "/" in key:
+                writer.add_scalar(key, value, global_step)
+            else:
+                writer.add_scalar("Episode/" + key, value, global_step)
+
         # TRY NOT TO MODIFY: save data to reply buffer; handle `final_observation`
         if true_dones.any():
             true_dones_idx = torch.argwhere(true_dones).squeeze()
@@ -327,8 +351,8 @@ def DDPG(envs, ddpg_cfg, run_path, expert_run_path):
                     nn.utils.clip_grad_norm_(actor.parameters(), 0.5)
                     actor_optimizer.step()
 
-                    writer.add_scalar("loss/actor_loss", actor_loss.item(), actor_training_step)
-                    writer.add_scalar("infos/Q_max", qs.max().item(), actor_training_step)
+                    writer.add_scalar("Loss/actor_loss", actor_loss.item(), global_step)
+                    writer.add_scalar("Infos/Q_max", qs.max().item(), global_step)
 
         if (global_step + 1) % ddpg_cfg.save_interval == 0:
             model_path = f"{run_path}/model_{global_step}.pt"

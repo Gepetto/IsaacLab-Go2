@@ -65,18 +65,19 @@ class MySceneCfg(InteractiveSceneCfg):
         offset=RayCasterCfg.OffsetCfg(pos=(0.0, 0.0, 20.0)),
         attach_yaw_only=True,
         pattern_cfg=patterns.GridPatternCfg(resolution=0.1, size=[1.6, 1.0]),
-        debug_vis=True,
+        # debug_vis=True,
         mesh_prim_paths=["/World/ground"],
     )
-    tiled_camera: TiledCameraCfg = TiledCameraCfg(
-        prim_path="/World/envs/env_.*/Camera",
-        offset=TiledCameraCfg.OffsetCfg(pos=(-7.0, 0.0, 3.0), rot=(0.9945, 0.0, 0.1045, 0.0), convention="world"),
+    camera = TiledCameraCfg(
+        prim_path="{ENV_REGEX_NS}/Robot/base/camera",
+        offset=TiledCameraCfg.OffsetCfg(pos=(0.0, 0.0, 0.0), rot=(0.0, 1.0, 0.0, 0.0), convention="ros"),
         data_types=["depth"],
+        debug_vis=True,
         spawn=sim_utils.PinholeCameraCfg(
             focal_length=24.0,
             focus_distance=400.0,
-            horizontal_aperture=20.955,
-            clipping_range=(0.1, 20.0),
+            horizontal_aperture=40.0,
+            clipping_range=(0.1, 1.0),
         ),
         width=40,
         height=40,
@@ -178,7 +179,7 @@ class ObservationsCfg:
         depth_image = ObsTerm(
             func=mdp.image,
             params={
-                "sensor_cfg": SceneEntityCfg("tiled_camera"),
+                "sensor_cfg": SceneEntityCfg("camera"),
                 "data_type": "depth",
             },
             noise=Unoise(n_min=-0.05, n_max=0.05),

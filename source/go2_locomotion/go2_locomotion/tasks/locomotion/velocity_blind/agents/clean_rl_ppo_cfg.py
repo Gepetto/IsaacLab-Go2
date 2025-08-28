@@ -39,7 +39,7 @@ class TorqueAgent(Agent):
 
 @configclass
 class Go2RoughPPORunnerCfg(CleanRlPpoActorCriticCfg):
-    save_interval = 500
+    save_interval = 50
 
     agent = TorqueAgent
 

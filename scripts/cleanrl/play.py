@@ -95,7 +95,7 @@ def main():
         print_dict(video_kwargs, nesting=4)
         env = gym.wrappers.RecordVideo(env, **video_kwargs)
 
-    actor_sd = torch.load(resume_path)
+    actor_sd = torch.load(resume_path, weights_only=True)
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -127,27 +127,28 @@ def main():
     pt_path = os.path.join(exported_path, "model.pt")
     torch.jit.trace(actor, dummy_input).save(pt_path)
 
-    robot_model_nn_sd = torch.load(robot_model_resume_path)
+    robot_model_nn_sd = torch.load(robot_model_resume_path, weights_only=True)
     robot_model_nn = RobotModel(env).to(device)
     robot_model_nn.load_state_dict(robot_model_nn_sd)
     robot_model_nn.eval()
 
+    dummy_action = torch.randn(1, 12).to(device)
     robot_onnx_path = os.path.join(exported_path, "robot_model.onnx")
     torch.onnx.export(
         robot_model_nn,
-        dummy_input,
+        (dummy_input, dummy_action),
         robot_onnx_path,
         export_params=True,
         opset_version=16,
         do_constant_folding=True,
-        input_names=["input"],
+        input_names=["state", "torques"],
         output_names=["output"],
         verbose=True,
     )
     print(f"[INFO] Exported ONNX robot model to {robot_onnx_path}")
 
     robot_pt_path = os.path.join(exported_path, "robot_model.pt")
-    torch.jit.trace(robot_model_nn, dummy_input).save(robot_pt_path)
+    torch.jit.trace(robot_model_nn, (dummy_input, dummy_action)).save(robot_pt_path)
     print(f"[INFO] Exported .pt model to {robot_pt_path}")
 
     for _ in range(args_cli.video_length):

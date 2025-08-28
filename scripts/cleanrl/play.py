@@ -75,7 +75,9 @@ def main():
     log_root_path = os.path.abspath(log_root_path)
     print(f"[INFO] Loading experiment from directory: {log_root_path}")
     resume_path = get_checkpoint_path(log_root_path, agent_cfg.load_run, agent_cfg.load_checkpoint)
+    robot_model_resume_path = get_checkpoint_path(log_root_path, agent_cfg.load_run, "robot_model_.*.pt")
     print(f"[INFO] Loading model: {resume_path}")
+    print(f"[INFO] Loading robot model: {robot_model_resume_path}")
     log_dir = os.path.dirname(resume_path)
 
     # create isaac environment
@@ -125,7 +127,7 @@ def main():
     pt_path = os.path.join(exported_path, "model.pt")
     torch.jit.trace(actor, dummy_input).save(pt_path)
 
-    robot_model_nn_sd = torch.load(resume_path)
+    robot_model_nn_sd = torch.load(robot_model_resume_path)
     robot_model_nn = RobotModel(env).to(device)
     robot_model_nn.load_state_dict(robot_model_nn_sd)
     robot_model_nn.eval()

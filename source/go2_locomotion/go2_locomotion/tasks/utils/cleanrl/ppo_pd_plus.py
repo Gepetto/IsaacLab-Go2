@@ -65,10 +65,10 @@ def layer_init(layer, std=np.sqrt(2), bias_const=0.0):
 class Agent(nn.Module):
     def __init__(self, envs):
         super().__init__()
-        single_observation_space = envs.unwrapped.single_observation_space["policy"].shape
+        single_observation_space = np.array(envs.unwrapped.single_observation_space["policy"].shape).prod()
         single_action_space = 12
         self.critic = nn.Sequential(
-            layer_init(nn.Linear(np.array(single_observation_space).prod(), 512)),
+            layer_init(nn.Linear(single_observation_space, 512)),
             nn.ELU(),
             layer_init(nn.Linear(512, 256)),
             nn.ELU(),
@@ -77,7 +77,7 @@ class Agent(nn.Module):
             layer_init(nn.Linear(128, 1), std=1.0),
         )
         self.actor_mean = nn.Sequential(
-            layer_init(nn.Linear(np.array(single_observation_space).prod(), 512)),
+            layer_init(nn.Linear(single_observation_space, 512)),
             nn.ELU(),
             layer_init(nn.Linear(512, 256)),
             nn.ELU(),
@@ -88,7 +88,7 @@ class Agent(nn.Module):
 
         self.actor_logstd = nn.Parameter(torch.zeros(1, single_action_space))
 
-        self.obs_rms = RunningMeanStd(shape=single_observation_space)
+        self.obs_rms = RunningMeanStd(shape=(single_observation_space,))
         self.value_rms = RunningMeanStd(shape=())
 
     def get_value(self, x):
@@ -119,7 +119,7 @@ class Agent(nn.Module):
 class RobotModel(nn.Module):
     def __init__(self, envs):
         super().__init__()
-        single_observation_space = np.array(envs.unwrapped.single_observation_space["policy"].shape).prod() - 36
+        single_observation_space = np.array(envs.unwrapped.single_observation_space["policy"].shape).prod() - 12
         robot_torques_size = 12
         single_state_size = 24
         self.sequential = nn.Sequential(
@@ -133,7 +133,7 @@ class RobotModel(nn.Module):
         )
 
     def forward(self, state, torques):
-        x = torch.cat([state[:, :-36], torques], -1)
+        x = torch.cat([state[:, :-12], torques], -1)
         return self.sequential(x)
 
 

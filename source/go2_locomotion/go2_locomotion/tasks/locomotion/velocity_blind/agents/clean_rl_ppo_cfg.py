@@ -45,7 +45,7 @@ class Go2RoughPPORunnerCfg(CleanRlPpoActorCriticCfg):
 
     learning_rate = 1.0e-3
     num_steps = 120
-    num_iterations = 1000
+    num_iterations = 450
     gamma = 0.99
     gae_lambda = 0.95
     updates_epochs = 5

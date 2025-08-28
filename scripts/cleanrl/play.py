@@ -56,7 +56,7 @@ from isaaclab_tasks.utils import get_checkpoint_path, parse_env_cfg
 
 # Import extensions to set up environment tasks
 import go2_locomotion.tasks  # noqa: F401
-from go2_locomotion.tasks.utils.cleanrl.ppo import Agent  # noqa: F401
+from go2_locomotion.tasks.utils.cleanrl.ppo_pd_plus import Agent, RobotModel  # noqa: F401
 
 
 def main():
@@ -124,12 +124,35 @@ def main():
 
     pt_path = os.path.join(exported_path, "model.pt")
     torch.jit.trace(actor, dummy_input).save(pt_path)
-    print(f"[INFO] Exported .pt model to {pt_path}")
+
+    robot_model_nn_sd = torch.load(resume_path)
+    robot_model_nn = RobotModel(env).to(device)
+    robot_model_nn.load_state_dict(robot_model_nn_sd)
+    robot_model_nn.eval()
+
+    robot_onnx_path = os.path.join(exported_path, "robot_model.onnx")
+    torch.onnx.export(
+        robot_model_nn,
+        dummy_input,
+        robot_onnx_path,
+        export_params=True,
+        opset_version=16,
+        do_constant_folding=True,
+        input_names=["input"],
+        output_names=["output"],
+        verbose=True,
+    )
+    print(f"[INFO] Exported ONNX robot model to {robot_onnx_path}")
+
+    robot_pt_path = os.path.join(exported_path, "robot_model.pt")
+    torch.jit.trace(robot_model_nn, dummy_input).save(robot_pt_path)
+    print(f"[INFO] Exported .pt model to {robot_pt_path}")
 
     for _ in range(args_cli.video_length):
         with torch.no_grad():
             actions, _, _, _ = actor.get_action_and_value(actor.obs_rms(obs, update=False), deterministic=True)
-        next_obs, rewards, next_done, timeouts, info = env.step(actions)
+            pd_target = robot_model_nn(obs, actions)
+        next_obs, rewards, next_done, timeouts, info = env.step(torch.cat([pd_target, actions], -1))
 
         obs = next_obs["policy"]
 

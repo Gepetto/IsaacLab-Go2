@@ -5,6 +5,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.distributions.normal import Normal
+from tqdm import tqdm
 
 
 class RunningMeanStd(nn.Module):
@@ -154,7 +155,12 @@ def PPO(envs, ppo_cfg, run_path):
 
     BATCH_SIZE = int(NUM_ENVS * NUM_STEPS)
 
+    resume_path = "/home/mykabouri/Reinforcement_Learning/ES-RL/IsaacLab/IsaacLab-Go2/logs/clean_rl/go2_CaT_flat/2025-08-20_17-17-18/model_399.pt"
+    print(f"[INFO] Loading model: {resume_path}")
+    actor_sd = torch.load(resume_path)
+
     agent = Agent(envs).to(device)
+    agent.load_state_dict(actor_sd)
     optimizer = optim.RAdam(agent.parameters(), lr=LEARNING_RATE, eps=1e-5)
 
     obs = torch.zeros((NUM_STEPS, NUM_ENVS) + SINGLE_OBSERVATION_SPACE, dtype=torch.float).to(device)
@@ -176,7 +182,7 @@ def PPO(envs, ppo_cfg, run_path):
 
     print(f"Starting training for {NUM_ITERATIONS} steps")
 
-    for iteration in range(1, NUM_ITERATIONS + 1):
+    for iteration in tqdm(range(1, NUM_ITERATIONS + 1)):
         ep_infos = []
 
         if ANNEAL_LR:

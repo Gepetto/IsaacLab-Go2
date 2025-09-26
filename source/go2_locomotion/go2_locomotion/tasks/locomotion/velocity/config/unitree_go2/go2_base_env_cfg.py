@@ -102,13 +102,13 @@ class CommandsCfg:
         heading_control_stiffness=0.5,
         debug_vis=True,
         ranges=mdp.UniformLevelVelocityCommandCfg.Ranges(
-            lin_vel_x=(-0.1, 0.1),
-            lin_vel_y=(-0.1, 0.1),
-            ang_vel_z=(-math.pi / 2.0, math.pi / 2.0),
+            lin_vel_x=(-1.0, 1.0),
+            lin_vel_y=(-1.0, 1.0),
+            ang_vel_z=(-1.0, 1.0),
             heading=(-math.pi, math.pi),
         ),
         limit_ranges=mdp.UniformLevelVelocityCommandCfg.Ranges(
-            lin_vel_x=(-1.0, 1.0), lin_vel_y=(-0.6, 0.6), ang_vel_z=(-math.pi, math.pi)
+            lin_vel_x=(-1.0, 1.0), lin_vel_y=(-0.8, 0.8), ang_vel_z=(-math.pi / 2, math.pi / 2)
         ),
     )
 
@@ -178,22 +178,26 @@ class EventCfg:
         mode="startup",
         params={
             "asset_cfg": SceneEntityCfg("robot", body_names=".*"),
-            "static_friction_range": (0.3, 1.2),
-            "dynamic_friction_range": (0.3, 1.2),
-            "restitution_range": (0.0, 0.15),
-            "num_buckets": 64,
+            "static_friction_range": (0.3, 1.25),
+            "dynamic_friction_range": (0.3, 1.25),
+            "restitution_range": (0.0, 0.1),
+            "num_buckets": 100,
+            # "static_friction_range": (0.3, 1.2),
+            # "dynamic_friction_range": (0.3, 1.2),
+            # "restitution_range": (0.0, 0.15),
+            # "num_buckets": 64,
         },
     )
 
-    add_base_mass = EventTerm(
-        func=mdp.randomize_rigid_body_mass,
-        mode="startup",
-        params={
-            "asset_cfg": SceneEntityCfg("robot", body_names="base"),
-            "mass_distribution_params": (-1.0, 3.0),
-            "operation": "add",
-        },
-    )
+    # add_base_mass = EventTerm(
+    #     func=mdp.randomize_rigid_body_mass,
+    #     mode="startup",
+    #     params={
+    #         "asset_cfg": SceneEntityCfg("robot", body_names="base"),
+    #         "mass_distribution_params": (-1.0, 3.0),
+    #         "operation": "add",
+    #     },
+    # )
 
     # reset
     base_external_force_torque = EventTerm(
@@ -236,7 +240,8 @@ class EventCfg:
         func=mdp.push_by_setting_velocity,
         mode="interval",
         interval_range_s=(10.0, 15.0),
-        params={"velocity_range": {"x": (-0.5, 0.5), "y": (-0.5, 0.5)}},
+        is_global_time=True,
+        params={"velocity_range": {"x": (-0.05, 0.05), "y": (-0.05, 0.05)}},
     )
 
 
@@ -262,7 +267,7 @@ class GO2BaseEnvCfg(ManagerBasedRLEnvCfg):
         """Post initialization."""
         # general settings
         self.decimation = 4
-        self.episode_length_s = 20.0
+        self.episode_length_s = 100.0
         # simulation settings
         self.sim.dt = 0.005
         self.sim.render_interval = self.decimation

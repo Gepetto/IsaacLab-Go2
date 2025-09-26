@@ -75,6 +75,44 @@ def feet_slide(env, sensor_cfg: SceneEntityCfg, asset_cfg: SceneEntityCfg = Scen
     return reward
 
 
+def foot_power(env, sensor_cfg: SceneEntityCfg, asset_cfg: SceneEntityCfg = SceneEntityCfg("robot")) -> torch.Tensor:
+    """ """
+    # Penalize feet sliding
+    contact_sensor: ContactSensor = env.scene.sensors[sensor_cfg.name]
+    print()
+    print()
+    print(f"{contact_sensor.data.net_forces_w_history[:, :, sensor_cfg.body_ids, :] = }")
+    print(f"{contact_sensor.data.net_forces_w_history[:, :, sensor_cfg.body_ids, :].shape = }")
+    contacts = contact_sensor.data.net_forces_w_history[:, :, sensor_cfg.body_ids, :]
+    asset = env.scene[asset_cfg.name]
+
+    body_vel = asset.data.body_lin_vel_w[:, asset_cfg.body_ids, :]
+    print(body_vel)
+    print(body_vel.shape)
+    print()
+    print()
+    reward = torch.sum(body_vel.norm(dim=-1) * contacts, dim=1)
+    return reward
+
+
+def foot_power(env, sensor_cfg: SceneEntityCfg, asset_cfg: SceneEntityCfg = SceneEntityCfg("robot")) -> torch.Tensor:
+    """
+    Reward penalizing sliding by multiplying contact force magnitudes with foot linear velocities.
+    """
+    # Get the contact sensor
+    contact_sensor: ContactSensor = env.scene.sensors[sensor_cfg.name]
+
+    # Latest net contact forces in world frame [num_envs, num_bodies, 3]
+    contacts_w = contact_sensor.data.net_forces_w[:, sensor_cfg.body_ids, :]
+
+    # Corresponding asset body velocities in world frame [num_envs, num_bodies, 3]
+    asset = env.scene[asset_cfg.name]
+    feet_vel_w = asset.data.body_lin_vel_w[:, sensor_cfg.body_ids, :]
+
+    rew_feet_pow = torch.sum(torch.abs(torch.sum(contacts_w * feet_vel_w, dim=2)), dim=1)
+    return rew_feet_pow
+
+
 def track_lin_vel_xy_yaw_frame_exp(
     env, std: float, command_name: str, asset_cfg: SceneEntityCfg = SceneEntityCfg("robot")
 ) -> torch.Tensor:
@@ -104,7 +142,8 @@ def energy(env: ManagerBasedRLEnv, asset_cfg: SceneEntityCfg = SceneEntityCfg("r
 
     qvel = asset.data.joint_vel[:, asset_cfg.joint_ids]
     qfrc = asset.data.applied_torque[:, asset_cfg.joint_ids]
-    return torch.sum(torch.abs(qvel) * torch.abs(qfrc), dim=-1)
+    return torch.sum((qvel * qfrc) ** 2, dim=1)
+    # return torch.sum(torch.abs(qvel) * torch.abs(qfrc), dim=-1)
 
 
 def joint_position_penalty(

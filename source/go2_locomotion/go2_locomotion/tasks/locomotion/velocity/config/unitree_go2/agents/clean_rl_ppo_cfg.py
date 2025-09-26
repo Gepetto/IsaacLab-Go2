@@ -64,17 +64,17 @@ class Go2FlatPPORunnerCfg(CleanRlPpoActorCriticCfg):
 
 @configclass
 class Go2FlatPPOCaTRunnerCfg(CleanRlPpoActorCriticCfg):
-    save_interval = 1000
+    save_interval = 100
 
-    learning_rate = 1.0e-3
+    learning_rate = 5.0e-4
     num_steps = 24
-    num_iterations = 600
+    num_iterations = 2001
     gamma = 0.99
     gae_lambda = 0.95
     updates_epochs = 5
     minibatch_size = 16384
     clip_coef = 0.2
-    ent_coef = 0.01
+    ent_coef = 0.001
     vf_coef = 2.0
     max_grad_norm = 1.0
     norm_adv = True

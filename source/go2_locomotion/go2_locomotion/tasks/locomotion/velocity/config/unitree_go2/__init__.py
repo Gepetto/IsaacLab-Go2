@@ -57,7 +57,7 @@ gym.register(
     entry_point=CaTEnv,
     disable_env_checker=True,
     kwargs={
-        "env_cfg_entry_point": cat_flat_env_cfg.Go2FlatEnvCfg,
+        "env_cfg_entry_point": cat_flat_env_cfg.CaTGo2FlatEnvCfg,
         "clean_rl_cfg_entry_point": f"{agents.__name__}.clean_rl_ppo_cfg:Go2FlatPPOCaTRunnerCfg",
     },
 )
@@ -67,7 +67,7 @@ gym.register(
     entry_point=CaTEnv,
     disable_env_checker=True,
     kwargs={
-        "env_cfg_entry_point": cat_flat_env_cfg.Go2FlatEnvCfg_PLAY,
+        "env_cfg_entry_point": cat_flat_env_cfg.CaTGo2FlatEnvCfg_PLAY,
         "clean_rl_cfg_entry_point": f"{agents.__name__}.clean_rl_ppo_cfg:Go2FlatPPOCaTRunnerCfg",
     },
 )

@@ -1,0 +1,1 @@
+__NV_PRIME_RENDER_OFFLOAD=1 __GLX_VENDOR_LIBRARY_NAME=nvidia __VK_LAYER_NV_optimus=NVIDIA_only python scripts/cleanrl/train.py --task=Go2-CaT-Velocity-Flat --video --logger="wandb" --log_project_name "go2_september" --headless --video_length 400

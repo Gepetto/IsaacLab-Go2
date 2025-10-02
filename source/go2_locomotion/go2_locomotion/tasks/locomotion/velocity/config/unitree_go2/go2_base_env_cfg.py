@@ -98,14 +98,14 @@ class CommandsCfg:
         resampling_time_range=(10.0, 10.0),
         rel_standing_envs=0.02,
         rel_heading_envs=1.0,
-        heading_command=True,
+        heading_command=False,
         heading_control_stiffness=0.5,
         debug_vis=True,
         ranges=mdp.UniformLevelVelocityCommandCfg.Ranges(
             lin_vel_x=(-1.0, 1.0),
             lin_vel_y=(-1.0, 1.0),
             ang_vel_z=(-1.0, 1.0),
-            heading=(-math.pi, math.pi),
+            # heading=(-math.pi, math.pi),
         ),
         limit_ranges=mdp.UniformLevelVelocityCommandCfg.Ranges(
             lin_vel_x=(-1.0, 1.0), lin_vel_y=(-0.8, 0.8), ang_vel_z=(-math.pi / 2, math.pi / 2)
@@ -241,7 +241,7 @@ class EventCfg:
         mode="interval",
         interval_range_s=(10.0, 15.0),
         is_global_time=True,
-        params={"velocity_range": {"x": (-0.05, 0.05), "y": (-0.05, 0.05)}},
+        params={"velocity_range": {"x": (-0.1, 0.1), "y": (-0.1, 0.1)}},
     )
 
 

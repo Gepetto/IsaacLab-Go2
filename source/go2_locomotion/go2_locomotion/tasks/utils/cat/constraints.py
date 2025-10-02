@@ -154,30 +154,25 @@ def n_foot_contact(
 
 def diag_foot_contact(
     env: ManagerBasedRLEnv,
-    number_of_desired_diagonals: int,
     min_command_value: float,
-    asset_cfg: SceneEntityCfg,
+    sensor_cfg: SceneEntityCfg,
 ) -> torch.Tensor:
-    contact_sensor = env.scene[asset_cfg.name]
-    net_contact_forces = contact_sensor.data.net_forces_w_history
+    contact_sensor: ContactSensor = env.scene.sensors[sensor_cfg.name]
+    contact_forces_z = contact_sensor.data.net_forces_w[:, sensor_cfg.body_ids, 2]
 
-    contact_forces_z = net_contact_forces[:, :, asset_cfg.body_ids, 2]
-
-    max_contact_forces_z = torch.max(contact_forces_z, dim=1)[0]
     FR, FL, BR, BL = range(4)
 
     # Diagonal contact booleans
-    diag1_contact = (max_contact_forces_z[:, [FL, BR]] > 1.0).all(1)
-    diag2_contact = (max_contact_forces_z[:, [FR, BL]] > 1.0).all(1)
+    diag1_contact = (contact_forces_z[:, [FL, BR]] > 1.0).all(1)
+    diag2_contact = (contact_forces_z[:, [FR, BL]] > 1.0).all(1)
 
     num_diag_contacts = diag1_contact.float() + diag2_contact.float()
     # Constraint = how far we are from desired number of diagonals
-    contact_cstr = torch.abs(num_diag_contacts - float(number_of_desired_diagonals))
+    contact_cstr = 1.0 - num_diag_contacts
     command_more_than_limit = (
         torch.norm(env.command_manager.get_command("base_velocity")[:, :3], dim=1) > min_command_value
     ).float()
     return contact_cstr * command_more_than_limit
-
 
 def joint_range(
     env: ManagerBasedRLEnv,

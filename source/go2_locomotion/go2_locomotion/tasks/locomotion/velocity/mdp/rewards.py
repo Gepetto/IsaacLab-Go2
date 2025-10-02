@@ -74,27 +74,6 @@ def feet_slide(env, sensor_cfg: SceneEntityCfg, asset_cfg: SceneEntityCfg = Scen
     reward = torch.sum(body_vel.norm(dim=-1) * contacts, dim=1)
     return reward
 
-
-def foot_power(env, sensor_cfg: SceneEntityCfg, asset_cfg: SceneEntityCfg = SceneEntityCfg("robot")) -> torch.Tensor:
-    """ """
-    # Penalize feet sliding
-    contact_sensor: ContactSensor = env.scene.sensors[sensor_cfg.name]
-    print()
-    print()
-    print(f"{contact_sensor.data.net_forces_w_history[:, :, sensor_cfg.body_ids, :] = }")
-    print(f"{contact_sensor.data.net_forces_w_history[:, :, sensor_cfg.body_ids, :].shape = }")
-    contacts = contact_sensor.data.net_forces_w_history[:, :, sensor_cfg.body_ids, :]
-    asset = env.scene[asset_cfg.name]
-
-    body_vel = asset.data.body_lin_vel_w[:, asset_cfg.body_ids, :]
-    print(body_vel)
-    print(body_vel.shape)
-    print()
-    print()
-    reward = torch.sum(body_vel.norm(dim=-1) * contacts, dim=1)
-    return reward
-
-
 def foot_power(env, sensor_cfg: SceneEntityCfg, asset_cfg: SceneEntityCfg = SceneEntityCfg("robot")) -> torch.Tensor:
     """
     Reward penalizing sliding by multiplying contact force magnitudes with foot linear velocities.

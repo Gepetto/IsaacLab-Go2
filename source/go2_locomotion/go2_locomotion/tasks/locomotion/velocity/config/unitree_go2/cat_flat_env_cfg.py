@@ -28,7 +28,7 @@ class RewardsCfg:
         weight=0.5,
         params={"command_name": "base_velocity", "std": math.sqrt(0.25)},
     )
-    base_linear_velocity = RewTerm(func=mdp.lin_vel_z_l2, weight=-0.001)
+    # base_linear_velocity = RewTerm(func=mdp.lin_vel_z_l2, weight=-0.001)
     # base_height = RewTerm(
     #     func=mdp.base_height_l2,
     #     weight=-0.5,
@@ -216,7 +216,7 @@ class ConstraintsCfg:
     # )
     foot_contact_force = ConstraintTerm(
         func=constraints.foot_contact_force,
-        max_p=1.0,
+        max_p=0.25,
         params={
             "limit": 180.0,
             "asset_cfg": SceneEntityCfg(
@@ -263,7 +263,7 @@ class ConstraintsCfg:
         func=constraints.air_time,
         max_p=0.25,
         params={
-            "limit": 0.3,
+            "limit": 0.1,
             "velocity_deadzone": 0.1,
             "asset_cfg": SceneEntityCfg(
                 "contact_forces",
@@ -271,18 +271,18 @@ class ConstraintsCfg:
             ),
         },
     )
-    no_move = ConstraintTerm(
-        func=constraints.no_move,
-        max_p=0.1,
-        params={
-            "velocity_deadzone": 0.1,
-            "joint_vel_limit": 4.0,
-            "asset_cfg": SceneEntityCfg(
-                "robot",
-                joint_names=JOINT_NAMES,
-            ),
-        },
-    )
+    # no_move = ConstraintTerm(
+    #     func=constraints.no_move,
+    #     max_p=0.1,
+    #     params={
+    #         "velocity_deadzone": 0.1,
+    #         "joint_vel_limit": 4.0,
+    #         "asset_cfg": SceneEntityCfg(
+    #             "robot",
+    #             joint_names=JOINT_NAMES,
+    #         ),
+    #     },
+    # )
     # two_foot_contact = ConstraintTerm(
     #     func=constraints.n_foot_contact,
     #     max_p=0.25,
@@ -299,18 +299,17 @@ class ConstraintsCfg:
         func=constraints.diag_foot_contact,
         max_p=0.25,
         params={
-            "number_of_desired_diagonals": 1,
             "min_command_value": 0.5,
-            "asset_cfg": SceneEntityCfg(
+            "sensor_cfg": SceneEntityCfg(
                 "contact_forces",
-                body_names=["FR_foot.*", "FL_foot.*", "RR_foot.*", "RL_foot.*"],
-            ),
+                body_names=["FR_foot.*", "FL_foot.*", "RR_foot.*", "RL_foot.*"]
+            )
         },
     )
     # Other constraints:
     base_height = ConstraintTerm(
         func=constraints.base_height,
-        max_p=1.0,
+        max_p=0.25,
         params={
             "low_bound": 0.25,
             "asset_cfg": SceneEntityCfg("robot", body_names=["base"]),

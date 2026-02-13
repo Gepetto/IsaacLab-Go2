@@ -8,10 +8,14 @@ from typing import Literal
 
 from isaaclab.utils import configclass
 
+from .ppo import Agent
+
 
 @configclass
 class CleanRlPpoActorCriticCfg:
     seed: int = 42
+
+    agent: Agent = None
 
     save_interval: int = MISSING
 

@@ -41,6 +41,7 @@ repos:
       - id: codespell
         additional_dependencies:
         - tomli
+        exclude: pyproject.toml
   - repo: https://github.com/pre-commit/pygrep-hooks
     rev: v1.10.0
     hooks:
